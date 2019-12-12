@@ -22,11 +22,17 @@ import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.text.TextBlock;
 
+import java.util.Locale;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * A very simple Processor which gets detected TextBlocks and adds them to the overlay
  * as OcrGraphics.
  */
 public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
+
+    private static final Pattern CreditCardPattern = Pattern.compile("(\\d{4})[\\s\\n](\\d{4})[\\s\\n](\\d{4})[\\s\\n](\\d{4})");
 
     private GraphicOverlay<OcrGraphic> graphicOverlay;
 
@@ -45,12 +51,18 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
     public void receiveDetections(Detector.Detections<TextBlock> detections) {
         graphicOverlay.clear();
         SparseArray<TextBlock> items = detections.getDetectedItems();
-        for (int i = 0; i < items.size(); ++i) {
-            TextBlock item = items.valueAt(i);
-            if (item != null && item.getValue() != null) {
-                Log.d("OcrDetectorProcessor", "Text detected! " + item.getValue());
+        int count = items.size();
+        TextBlock item;
+        String text;
+        Matcher matcher;
+        for (int i = 0; i < count; ++i) {
+            item = items.valueAt(i);
+            if (item != null && (text = item.getValue()) != null && (matcher = CreditCardPattern.matcher(text)).find()) {
+                text = String.format(Locale.TAIWAN, "%s %s %s %s", matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4));
+                Log.d("OcrDetectorProcessor", "Text detected! " + text);
                 OcrGraphic graphic = new OcrGraphic(graphicOverlay, item);
-                graphicOverlay.add(graphic);
+                graphicOverlay.add(graphic, text);
+                break;
             }
         }
     }
@@ -61,5 +73,6 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
     @Override
     public void release() {
         graphicOverlay.clear();
+        graphicOverlay = null;
     }
 }

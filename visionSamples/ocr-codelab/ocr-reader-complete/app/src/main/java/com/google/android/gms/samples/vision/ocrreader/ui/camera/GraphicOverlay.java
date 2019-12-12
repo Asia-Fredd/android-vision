@@ -19,6 +19,10 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -140,8 +144,22 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
         }
     }
 
+    private AlertDialog alertDialog;
+    private Handler handler;
+
     public GraphicOverlay(Context context, AttributeSet attrs) {
         super(context, attrs);
+        alertDialog = new AlertDialog.Builder(context).create();
+        handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (alertDialog != null && !alertDialog.isShowing()) {
+                    alertDialog.setMessage(String.valueOf(msg.obj));
+                    alertDialog.show();
+                }
+                return true;
+            }
+        });
     }
 
     /**
@@ -162,6 +180,14 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
             graphics.add(graphic);
         }
         postInvalidate();
+    }
+
+    /**
+     * overload/extend add(graphic)
+     */
+    public void add(T graphic, String msg) {
+        Message.obtain(handler, 0, msg).sendToTarget();
+        add(graphic);
     }
 
     /**
