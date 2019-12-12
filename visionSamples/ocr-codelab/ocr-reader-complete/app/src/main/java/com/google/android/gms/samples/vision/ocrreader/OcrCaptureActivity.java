@@ -118,7 +118,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
                     public void onInit(final int status) {
                         if (status == TextToSpeech.SUCCESS) {
                             Log.d("OnInitListener", "Text to speech engine started successfully.");
-                            tts.setLanguage(Locale.US);
+                            tts.setLanguage(Locale.CHINESE);
                         } else {
                             Log.d("OnInitListener", "Error starting the text to speech engine.");
                         }
