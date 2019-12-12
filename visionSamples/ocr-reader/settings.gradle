@@ -1,1 +1,2 @@
+rootProject.name = "TK3C-OCR-Reader"
 include ':app'
