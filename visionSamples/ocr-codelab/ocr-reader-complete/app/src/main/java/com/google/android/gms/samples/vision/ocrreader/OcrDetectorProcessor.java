@@ -26,6 +26,9 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import asia.fredd.tools.creditcardutils.base.CardType;
+import asia.fredd.tools.creditcardutils.base.CreditCard;
+
 /**
  * A very simple Processor which gets detected TextBlocks and adds them to the overlay
  * as OcrGraphics.
@@ -54,14 +57,13 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
         int count = items.size();
         TextBlock item;
         String text;
-        Matcher matcher;
+        CardType card;
         for (int i = 0; i < count; ++i) {
             item = items.valueAt(i);
-            if (item != null && (text = item.getValue()) != null && (matcher = CreditCardPattern.matcher(text)).find()) {
-                text = String.format(Locale.TAIWAN, "%s %s %s %s", matcher.group(1), matcher.group(2), matcher.group(3), matcher.group(4));
-                Log.d("OcrDetectorProcessor", "Text detected! " + text);
+            if (item != null && (text = item.getValue()) != null && (card = CreditCard.Extract(text)) != null) {
+                Log.d("OcrDetectorProcessor", "Text detected! " + card.getCardNumber());
                 OcrGraphic graphic = new OcrGraphic(graphicOverlay, item);
-                graphicOverlay.add(graphic, text);
+                graphicOverlay.add(graphic, card);
                 break;
             }
         }

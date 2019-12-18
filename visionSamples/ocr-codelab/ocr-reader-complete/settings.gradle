@@ -1,2 +1,3 @@
 rootProject.name = "TK3C-OCR-codelab"
 include ':app'
+includeBuild("../../../../CreditCardUtils")

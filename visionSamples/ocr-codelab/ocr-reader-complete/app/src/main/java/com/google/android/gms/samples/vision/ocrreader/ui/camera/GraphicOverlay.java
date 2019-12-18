@@ -31,6 +31,13 @@ import com.google.android.gms.vision.CameraSource;
 import java.util.HashSet;
 import java.util.Set;
 
+import asia.fredd.tools.creditcardutils.base.CardType;
+import asia.fredd.tools.creditcardutils.type.AmericanExpress;
+import asia.fredd.tools.creditcardutils.type.DiscoverCard;
+import asia.fredd.tools.creditcardutils.type.MasterCard;
+import asia.fredd.tools.creditcardutils.type.UnionPay;
+import asia.fredd.tools.creditcardutils.type.VisaCard;
+
 /**
  * A view which renders a series of custom graphics to be overlaid on top of an associated preview
  * (i.e., the camera preview).  The creator can add graphics objects, update the objects, and remove
@@ -154,7 +161,19 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
             @Override
             public boolean handleMessage(Message msg) {
                 if (alertDialog != null && !alertDialog.isShowing()) {
-                    alertDialog.setMessage(String.valueOf(msg.obj));
+                    CardType card = (CardType) msg.obj;
+                    if (card instanceof AmericanExpress) {
+                        alertDialog.setTitle("美國運通");
+                    } else if (card instanceof DiscoverCard) {
+                        alertDialog.setTitle("發現卡");
+                    } else if (card instanceof VisaCard) {
+                        alertDialog.setTitle("VISA");
+                    } else if (card instanceof MasterCard) {
+                        alertDialog.setTitle("MasterCard");
+                    } else if (card instanceof UnionPay) {
+                        alertDialog.setTitle("中國銀聯");
+                    }
+                    alertDialog.setMessage(card.getCardNumber());
                     alertDialog.show();
                 }
                 return true;
@@ -185,8 +204,8 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
     /**
      * overload/extend add(graphic)
      */
-    public void add(T graphic, String msg) {
-        Message.obtain(handler, 0, msg).sendToTarget();
+    public void add(T graphic, CardType card) {
+        Message.obtain(handler, 1, card).sendToTarget();
         add(graphic);
     }
 
