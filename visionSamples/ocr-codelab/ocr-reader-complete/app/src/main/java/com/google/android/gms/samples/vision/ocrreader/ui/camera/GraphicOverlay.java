@@ -16,12 +16,15 @@
 package com.google.android.gms.samples.vision.ocrreader.ui.camera;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.View;
@@ -154,28 +157,59 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
 
     private AlertDialog alertDialog;
     private Handler handler;
+    private boolean isReject;
+    private CardType mCard;
 
-    public GraphicOverlay(Context context, AttributeSet attrs) {
+    public GraphicOverlay(final Context context, AttributeSet attrs) {
         super(context, attrs);
-        alertDialog = new AlertDialog.Builder(context).create();
+        alertDialog = new AlertDialog.Builder(context)
+                .setNegativeButton("離開", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        isReject = true;
+                        LocalBroadcastManager.getInstance(context)
+                                .sendBroadcast(
+                                        new Intent("asia.fredd.tools.creditcardutils")
+                                );
+                    }
+                })
+                .setNeutralButton("重讀", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        isReject = false;
+                        mCard = null;
+                    }
+                })
+                .setPositiveButton("確定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        isReject = true;
+                        LocalBroadcastManager.getInstance(context)
+                                .sendBroadcast(
+                                        new Intent("asia.fredd.tools.creditcardutils")
+                                                .putExtra("card_number", mCard != null ? mCard.getCardNumber() : null)
+                                                .putExtra("card_date", mCard != null ? mCard.getCardDateThru().getDate() : null)
+                                );
+                    }
+                }).create();
         handler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
             @Override
             public boolean handleMessage(Message msg) {
-                if (alertDialog != null && !alertDialog.isShowing()) {
-                    CardType card = (CardType) msg.obj;
-                    if (card instanceof AmericanExpress) {
+                if (!isReject && alertDialog != null && !alertDialog.isShowing()) {
+                    mCard = (CardType) msg.obj;
+                    if (mCard instanceof AmericanExpress) {
                         alertDialog.setTitle("美國運通");
-                    } else if (card instanceof DiscoverCard) {
+                    } else if (mCard instanceof DiscoverCard) {
                         alertDialog.setTitle("發現卡");
-                    } else if (card instanceof VisaCard) {
+                    } else if (mCard instanceof VisaCard) {
                         alertDialog.setTitle("VISA");
-                    } else if (card instanceof MasterCard) {
+                    } else if (mCard instanceof MasterCard) {
                         alertDialog.setTitle("MasterCard");
-                    } else if (card instanceof UnionPay) {
+                    } else if (mCard instanceof UnionPay) {
                         alertDialog.setTitle("中國銀聯");
                     }
-                    StringBuilder sb = new StringBuilder("卡號\n").append(card.getCardNumber());
-                    CardDateThru dateThru = card.getCardDateThru();
+                    StringBuilder sb = new StringBuilder("卡號\n").append(mCard.getCardNumber());
+                    CardDateThru dateThru = mCard.getCardDateThru();
                     if (dateThru != null) {
                         char[] date = dateThru.getDate().toString().toCharArray();
                         sb.append("\n\n有效期限\n")

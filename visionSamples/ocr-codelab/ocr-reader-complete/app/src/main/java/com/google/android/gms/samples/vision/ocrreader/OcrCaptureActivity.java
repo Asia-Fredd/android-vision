@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import android.speech.tts.TextToSpeech;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -229,7 +231,24 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         startCameraSource();
+        LocalBroadcastManager.getInstance(this).registerReceiver(cardReceiver, cardIntentFilter);
     }
+
+    private BroadcastReceiver cardReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent != null) {
+                CharSequence card_number = intent.getCharSequenceExtra("card_number");
+                CharSequence card_date   = intent.getCharSequenceExtra("card_date");
+                Toast.makeText(context, String.format(Locale.TAIWAN, "%s\n%s", card_number, card_date), Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(context, "card null", Toast.LENGTH_LONG).show();
+            }
+            finishAfterTransition();
+        }
+    };
+
+    private IntentFilter cardIntentFilter = new IntentFilter("asia.fredd.tools.creditcardutils");
 
     /**
      * Stops the camera.
@@ -237,6 +256,7 @@ public final class OcrCaptureActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(cardReceiver);
         if (preview != null) {
             preview.stop();
         }
