@@ -44,7 +44,7 @@
 
     <android.support.design.button.MaterialButton
         style="@style/Widget.MaterialComponents.Button"
-        android:id="@+id/scan_card"
+        android:id="@+id/card_scan"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="掃描信用卡"

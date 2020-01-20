@@ -35,7 +35,6 @@
 
         <activity
             android:name="asia.fredd.tools.creditcardutils.MainActivity"
-            android:windowSoftInputMode="stateAlwaysHidden"
             android:screenOrientation="portrait"
             tools:ignore="LockedOrientationActivity">
             <intent-filter>

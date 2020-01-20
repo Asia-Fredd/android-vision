@@ -239,10 +239,9 @@ public final class OcrCaptureActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             if (intent != null) {
                 CharSequence card_number = intent.getCharSequenceExtra("card_number");
-                CharSequence card_date   = intent.getCharSequenceExtra("card_date");
-                Toast.makeText(context, String.format(Locale.TAIWAN, "%s\n%s", card_number, card_date), Toast.LENGTH_LONG).show();
+                OcrCaptureActivity.this.setResult(card_number == null ? RESULT_CANCELED : RESULT_OK, new Intent(intent));
             } else {
-                Toast.makeText(context, "card null", Toast.LENGTH_LONG).show();
+                OcrCaptureActivity.this.setResult(RESULT_CANCELED);
             }
             finishAfterTransition();
         }
