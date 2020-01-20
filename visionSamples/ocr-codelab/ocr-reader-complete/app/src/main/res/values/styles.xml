@@ -6,6 +6,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="actionBarStyle">@style/Widget.AppCompat.ActionBar.Solid.TK3C</item>
         <item name="android:actionBarStyle">?attr/actionBarStyle</item>
+        <item name="homeAsUpIndicator">@drawable/abc_ic_ab_back_material</item>
+        <item name="android:homeAsUpIndicator">?attr/homeAsUpIndicator</item>
     </style>
     <style name="Widget.AppCompat.ActionBar.Solid.TK3C">
         <item name="titleTextStyle">@style/TextAppearance.AppCompat.Widget.ActionBar.Title.TK3C</item>
