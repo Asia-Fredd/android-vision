@@ -39,6 +39,12 @@ public class MainFragment extends Fragment {
         view.findViewById(R.id.card_scan).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                try {
+                    //noinspection ConstantConditions
+                    getActivity().getCurrentFocus().clearFocus();
+                } catch (Throwable e) {
+                    /* nothing-to-do */
+                }
                 startActivityForResult(
                         new Intent(v.getContext(), OcrCaptureActivity.class)
                 , REQUEST_CARD_SCAN);
