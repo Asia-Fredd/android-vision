@@ -17,11 +17,11 @@ package com.google.android.gms.samples.vision.ocrreader.ui.camera;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.RectF;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 import android.view.View;
@@ -31,6 +31,7 @@ import com.google.android.gms.vision.CameraSource;
 import java.util.HashSet;
 import java.util.Set;
 
+import asia.fredd.tools.creditcardutils.base.CardDateThru;
 import asia.fredd.tools.creditcardutils.base.CardType;
 import asia.fredd.tools.creditcardutils.type.AmericanExpress;
 import asia.fredd.tools.creditcardutils.type.DiscoverCard;
@@ -173,7 +174,16 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
                     } else if (card instanceof UnionPay) {
                         alertDialog.setTitle("中國銀聯");
                     }
-                    alertDialog.setMessage(card.getCardNumber());
+                    StringBuilder sb = new StringBuilder("卡號\n").append(card.getCardNumber());
+                    CardDateThru dateThru = card.getCardDateThru();
+                    if (dateThru != null) {
+                        char[] date = dateThru.getDate().toString().toCharArray();
+                        sb.append("\n\n有效期限\n")
+                          .append(date, 0, 2)
+                          .append("/")
+                          .append(date, 2, 2);
+                    }
+                    alertDialog.setMessage(sb);
                     alertDialog.show();
                 }
                 return true;
@@ -205,8 +215,12 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
      * overload/extend add(graphic)
      */
     public void add(T graphic, CardType card) {
-        Message.obtain(handler, 1, card).sendToTarget();
+        post(card);
         add(graphic);
+    }
+
+    public void post(@NonNull CardType card) {
+        Message.obtain(handler, 1, card).sendToTarget();
     }
 
     /**

@@ -19,12 +19,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
 import com.google.android.gms.vision.text.Text;
 import com.google.android.gms.vision.text.TextBlock;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Graphic instance for rendering TextBlock position, size, and ID within an associated graphic
@@ -110,5 +112,15 @@ public class OcrGraphic extends GraphicOverlay.Graphic {
             float bottom = translateY(currentText.getBoundingBox().bottom);
             canvas.drawText(currentText.getValue(), left, bottom, textPaint);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return textBlock.hashCode();
+    }
+
+    @Override
+    public boolean equals(@Nullable Object obj) {
+        return obj instanceof GraphicOverlay.Graphic && obj.hashCode() == hashCode();
     }
 }

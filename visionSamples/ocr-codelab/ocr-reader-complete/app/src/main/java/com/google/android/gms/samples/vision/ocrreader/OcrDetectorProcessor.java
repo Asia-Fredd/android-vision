@@ -22,10 +22,7 @@ import com.google.android.gms.samples.vision.ocrreader.ui.camera.GraphicOverlay;
 import com.google.android.gms.vision.Detector;
 import com.google.android.gms.vision.text.TextBlock;
 
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
+import asia.fredd.tools.creditcardutils.base.CardDateThru;
 import asia.fredd.tools.creditcardutils.base.CardType;
 import asia.fredd.tools.creditcardutils.base.CreditCard;
 
@@ -34,8 +31,6 @@ import asia.fredd.tools.creditcardutils.base.CreditCard;
  * as OcrGraphics.
  */
 public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
-
-    private static final Pattern CreditCardPattern = Pattern.compile("(\\d{4})[\\s\\n](\\d{4})[\\s\\n](\\d{4})[\\s\\n](\\d{4})");
 
     private GraphicOverlay<OcrGraphic> graphicOverlay;
 
@@ -57,13 +52,30 @@ public class OcrDetectorProcessor implements Detector.Processor<TextBlock> {
         int count = items.size();
         TextBlock item;
         String text;
-        CardType card;
+        CardType card = null;
+        CardDateThru dateThru = null;
         for (int i = 0; i < count; ++i) {
-            item = items.valueAt(i);
-            if (item != null && (text = item.getValue()) != null && (card = CreditCard.Extract(text)) != null) {
-                Log.d("OcrDetectorProcessor", "Text detected! " + card.getCardNumber());
-                OcrGraphic graphic = new OcrGraphic(graphicOverlay, item);
-                graphicOverlay.add(graphic, card);
+            if ((item = items.valueAt(i)) != null && (text = item.getValue()) != null) {
+                if (card == null) {
+                    card = CreditCard.ExtractCardNumber(text);
+                    if (card != null) {
+                        OcrGraphic ocrGraphic = new OcrGraphic(graphicOverlay, item);
+                        graphicOverlay.add(ocrGraphic);
+                    }
+                }
+                if (dateThru == null) {
+                    dateThru = CreditCard.ExtractCardDateThru(text);
+                    if (dateThru != null) {
+                        OcrGraphic ocrGraphic = new OcrGraphic(graphicOverlay, item);
+                        graphicOverlay.add(ocrGraphic);
+                    }
+                }
+            }
+            if (card != null && dateThru != null) {
+                Log.d("OcrDetectorProcessor", "Card Number detected! = " + card.getCardNumber());
+                Log.d("OcrDetectorProcessor", "Card Date Thru detected! = " + dateThru.getDate());
+                card.setCardDateThru(dateThru);
+                graphicOverlay.post(card);
                 break;
             }
         }
