@@ -208,14 +208,36 @@ public class GraphicOverlay<T extends GraphicOverlay.Graphic> extends View {
                     } else if (mCard instanceof UnionPay) {
                         alertDialog.setTitle("中國銀聯");
                     }
-                    StringBuilder sb = new StringBuilder("卡號\n").append(mCard.getCardNumber());
+                    StringBuilder sb = new StringBuilder("卡號\n");
+                    CharSequence cardNumber = mCard.getCardNumber();
+                    switch (cardNumber.length()) {
+                        case 15:
+                            sb.append(cardNumber, 0, 4)
+                              .append(" ")
+                              .append(cardNumber, 4, 10)
+                              .append(" ")
+                              .append(cardNumber, 10, 15);
+                            break;
+                        case 16:
+                            sb.append(cardNumber, 0, 4)
+                              .append(" ")
+                              .append(cardNumber, 4, 8)
+                              .append(" ")
+                              .append(cardNumber, 8, 12)
+                              .append(" ")
+                              .append(cardNumber, 12, 16);
+                            break;
+                        default:
+                            sb.append(cardNumber);
+                            break;
+                    }
                     CardDateThru dateThru = mCard.getCardDateThru();
                     if (dateThru != null) {
-                        char[] date = dateThru.getDate().toString().toCharArray();
+                        CharSequence date = dateThru.getDate();
                         sb.append("\n\n有效期限\n")
                           .append(date, 0, 2)
                           .append("/")
-                          .append(date, 2, 2);
+                          .append(date, 2, 4);
                     }
                     alertDialog.setMessage(sb);
                     alertDialog.show();
